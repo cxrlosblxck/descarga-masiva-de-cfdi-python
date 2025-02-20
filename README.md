@@ -99,15 +99,10 @@ Hay varias maneras en las que puedes contribuir:
 
 
 
-1. **Fork del repositorio:** Haz un "fork" del repositorio en GitHub (si aplica).
+1. **Fork del repositorio:** Haz un "fork" del repositorio en GitHub.
 
 
-
-2. **Creación de una rama (Branch):** Crea una nueva rama para tu trabajo. Usa un nombre descriptivo (ej: `feature/nueva-funcionalidad`, `bugfix/correccion-error`).
-
-
-
-3. **Desarrollo del código:**
+2. **Desarrollo del código:**
 
 
 
