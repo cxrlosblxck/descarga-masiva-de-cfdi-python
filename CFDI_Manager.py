@@ -1,4 +1,4 @@
-# Raven Developers by Grupo AISA
+# Raven Developers by Grupo AISA 
 import tkinter as tk
 from tkinter import ttk, filedialog, scrolledtext, messagebox
 import base64
@@ -225,6 +225,7 @@ class CFDIDownloaderGUI:
                 )
 
             self.log_process(f"Solicitud creada exitosamente: {solicitud['id_solicitud']}")
+            
             while True:
                 token = auth.obtener_token()
                 verificacion = VerificaSolicitudDescarga(fiel)
@@ -236,31 +237,33 @@ class CFDIDownloaderGUI:
                     self.log_process("En proceso, esperando 60 segundos...")
                     time.sleep(60)
                     continue
-
                 elif estado_solicitud == 3:
                     self.log_process("Descarga completada")
+                    # Procesamos los paquetes cuando el estado es 3 (Terminada)
+                    if 'paquetes' in verificacion and verificacion['paquetes']:
+                        for paquete in verificacion['paquetes']:
+                            descarga = DescargaMasiva(fiel)
+                            descarga_paquete = descarga.descargar_paquete(token, rfc, paquete)
+                            filename = os.path.join(download_dir, f'{paquete}.zip')
+                            with open(filename, 'wb') as fp:
+                                fp.write(base64.b64decode(descarga_paquete['paquete_b64']))
+                            self.log_process(f"Paquete descargado en: {filename}")
+                    else:
+                        self.log_process("No se encontraron paquetes para descargar")
                     break
-    
-                elif estado_solicitud >= 4:
-                    self.log_process(f"Error en la solicitud: {estado_solicitud}")
+                elif estado_solicitud == 4:
+                    self.log_process("Error en la solicitud")
                     break
-
                 elif estado_solicitud == 5:
-                    self.log_process("Solicitud rechazada")
+                    self.log_process("Solicitud rechazada o no encuentra CFDIs")
                     break
-
                 elif estado_solicitud == 6:
                     self.log_process("Solicitud vencida")
                     break
                 else:
-                    for paquete in verificacion['paquetes']:
-                        descarga = DescargaMasiva(fiel)
-                        descarga_paquete = descarga.descargar_paquete(token, rfc, paquete)
-                        filename = os.path.join(download_dir, f'{paquete}.zip')
-                        with open(filename, 'wb') as fp:
-                            fp.write(base64.b64decode(descarga_paquete['paquete_b64']))
-                        self.log_process(f"Paquete descargado en: {filename}")
+                    self.log_process(f"Estado desconocido: {estado_solicitud}")
                     break
+                
             self.log_process("Proceso completado.")
         except Exception as e:
             self.log_process(f"Error: {str(e)}")
